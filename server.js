@@ -29,7 +29,7 @@ mongoose.connect(mongo_uri, { useNewUrlParser: true })
   });
 
   app.use(cors({
-    origin: 'https://cellvivortest.vercel.app', // your frontend URL
+    origin: ['https://cellvivortest.vercel.app','https://kratin-tan.vercel.app'], // your frontend URL
     methods: ['GET', 'POST'],
     credentials: true
   }));
@@ -429,7 +429,7 @@ app.post('/progress/save', async (req, res) => {
 const server = http.createServer(app);
 const io = new SocketIO(server, {
   cors: {
-    origin: 'https://cellvivortest.vercel.app',
+    origin: ['https://cellvivortest.vercel.app','https://kratin-tan.vercel.app'],
     methods: ['GET', 'POST'],
     credentials: true
   },
