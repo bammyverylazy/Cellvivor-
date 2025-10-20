@@ -17,7 +17,19 @@ const keywordSchema = new mongoose.Schema({
   category: { type: String },
   chapter: { type: String },
 });
-const Keyword = mongoose.models.Keywords || mongoose.model('Keywords', keywordSchema);
+// Default keywords model (explicit collection name)
+const Keyword = mongoose.models.Keywords || mongoose.model('Keywords', keywordSchema, 'keywords');
+// Kratin-specific collection mapping
+const KeywordKratin = mongoose.models.KeywordKratin || mongoose.model('KeywordKratin', keywordSchema, 'keywordskratin');
+
+// Helper to select model by origin
+function getKeywordModel(origin) {
+  const normalized = (origin || '').toString().trim();
+  const useKratin = normalized === 'https://kratin-tan.vercel.app';
+  const model = useKratin ? KeywordKratin : Keyword;
+  console.log(`[DB] getKeywordModel -> origin: "${normalized}" => collection: "${useKratin ? 'keywordskratin' : 'keywords'}"`);
+  return model;
+}
 
 const gameplaySchema = new mongoose.Schema({
   roomCode: { type: String, required: true },
@@ -38,4 +50,4 @@ const gameplaySchema = new mongoose.Schema({
 });
 const Gameplay = mongoose.models.Gameplay || mongoose.model('Gameplay', gameplaySchema);
 
-export { User, Keyword, Gameplay };
+export { User, Keyword, KeywordKratin, Gameplay, getKeywordModel };

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import { Server as SocketIO } from 'socket.io';
 import dotenv from 'dotenv';
 
-import { User, Keyword, Gameplay } from './models.js';
+import { User, Gameplay, getKeywordModel } from './models.js';
 import { setupSocket } from './socket.js';
 
 dotenv.config();
@@ -89,6 +89,7 @@ app.post('/users', async (req, res) => {
 
 app.get('/keywords', async (req, res) => {
   try {
+    const Keyword = getKeywordModel(req.headers.origin);
     const keywords = await Keyword.find();
     res.json(keywords);
   } catch (error) {
@@ -98,6 +99,7 @@ app.get('/keywords', async (req, res) => {
 
 app.post('/keywords', async (req, res) => {
   try {
+    const Keyword = getKeywordModel(req.headers.origin);
     const newKeyword = new Keyword(req.body);
     const savedKeyword = await newKeyword.save();
     res.status(201).json(savedKeyword);
@@ -108,6 +110,7 @@ app.post('/keywords', async (req, res) => {
 
 app.get('/api/random-keyword', async (req, res) => {
   try {
+    const Keyword = getKeywordModel(req.headers.origin);
     const count = await Keyword.countDocuments();
     if (count === 0) return res.status(404).json({ error: 'No keywords found' });
     const random = Math.floor(Math.random() * count);
@@ -125,6 +128,7 @@ app.get('/api/keywords/random', async (req, res) => {
     if (!difficulty) {
       return res.status(400).json({ error: 'Missing difficulty parameter' });
     }
+    const Keyword = getKeywordModel(req.headers.origin);
 
     const keyword = await Keyword.aggregate([
       { $match: { level: difficulty } },
@@ -194,6 +198,7 @@ app.post('/api/save-player-result', async (req, res) => {
       return res.status(404).json({ error: 'Gameplay not found' });
     }
 
+    const Keyword = getKeywordModel(req.headers.origin);
     const keywordDoc = await Keyword.findOne({ word: keyword });
     const chapter = keywordDoc?.chapter || 'Unknown';
     const difficulty = keywordDoc?.level || 'medium';
