@@ -1,6 +1,7 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import io from 'socket.io-client';
+import { saveGameProgress } from '../utils/saveProgress.js';
 const socket = io(import.meta.env.VITE_BACKEND_URL);
 const backendURL = 'https://cellvivor-backend.onrender.com';
 
@@ -72,16 +73,15 @@ export class Mode extends Scene {
       borderRadius: 16, align: 'center'
     }).setOrigin(0.5).setDepth(302).setInteractive({ useHandCursor: true });
 
-    newGameBtn.on('pointerdown', async () => {
-      if (!user?._id) return;
-      await fetch(`${backendURL}/progress/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user._id, scene: "Chapter1" })
-      });
-      
-      this.scene.start('Chapter1');
-    });
+        newGameBtn.on('pointerdown', async () => {
+            if (!user?._id) return;
+            try {
+                await saveGameProgress(user._id, 'Chapter1');
+            } catch (err) {
+                console.warn('Failed to save progress before starting new game:', err);
+            }
+            this.scene.start('Chapter1');
+        });
 continueBtn.on('pointerdown', async () => {
   try {
     const storedUser = localStorage.getItem('currentUser') || localStorage.getItem('user');
